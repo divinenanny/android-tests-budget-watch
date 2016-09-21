@@ -1,10 +1,4 @@
 apply plugin: 'com.android.application'
-apply plugin: 'findbugs'
-
-findbugs {
-    sourceSets = []
-    ignoreFailures = false
-}
 
 android {
     compileSdkVersion 23
