@@ -61,6 +61,9 @@ public class ApplicationTest {
         onView(withText("40")).perform(click());
     }
 
+    //
+
+
     private void rotateScreen() {
         Context context = InstrumentationRegistry.getTargetContext();
         int orientation = context.getResources().getConfiguration().orientation;
