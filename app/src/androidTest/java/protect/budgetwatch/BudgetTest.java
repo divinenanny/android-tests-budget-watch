@@ -20,12 +20,14 @@ import org.junit.runner.RunWith;
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
+import static android.support.test.espresso.action.ViewActions.longClick;
 import static android.support.test.espresso.action.ViewActions.replaceText;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.isChecked;
 import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static protect.budgetwatch.Resources.childAtPosition;
@@ -40,15 +42,15 @@ public class BudgetTest {
     @Rule
     public ActivityTestRule<MainActivity> activityRule = new ActivityTestRule(MainActivity.class);
 
-//    @Test
-//    public void BudgetSetup() {
-//        //Open budgets, check that Budgets is opened, check that there are no budgets
-//        onView(allOf(childAtPosition(withId(R.id.list), 0), isDisplayed())).perform(click());
-//        onView(withText("Budgets")).check(matches(isDisplayed()));
-//        onView(withText("You don't have any budgets at the moment. Click the + (plus) button up top " +
-//                "to get started.\n\nBudget Watch lets you create budgets, then track spending " +
-//                "during the month.")).check(matches(isDisplayed()));
-//    }
+    @Test
+    public void BudgetSetup() {
+        //Open budgets, check that Budgets is opened, check that there are no budgets
+        onView(allOf(childAtPosition(withId(R.id.list), 0), isDisplayed())).perform(click());
+        onView(withText("Budgets")).check(matches(isDisplayed()));
+        onView(withText("You don't have any budgets at the moment. Click the + (plus) button up top " +
+                "to get started.\n\nBudget Watch lets you create budgets, then track spending " +
+                "during the month.")).check(matches(isDisplayed()));
+    }
 
     @Test
     public void createBudget() {
@@ -62,12 +64,40 @@ public class BudgetTest {
         onView(withId(R.id.value)).perform(replaceText(budgetMax), closeSoftKeyboard());
         onView(withId(R.id.saveButton)).perform(click());
         onView(allOf(withId(R.id.budgetName),childAtPosition(childAtPosition(withId(R.id.list),0),0))).check(matches(withText(budgetName)));
-        onView(allOf(withId(R.id.budgetValue),childAtPosition(childAtPosition(IsInstanceOf.<View>instanceOf(android.widget.LinearLayout.class),1),0))).check(matches(withText("0/" + budgetMax)));
     }
 
-    //Close down -
-    // delete all budgets (let op, dit moet eigenlijk aan het einde van alle tests)
-    // Close budgets
+    @Test
+    public void deleteBudgets() {
+        onView(allOf(childAtPosition(withId(R.id.list), 0), isDisplayed())).perform(click());
+        onView(withText("Budgets")).check(matches(isDisplayed()));
+        onView(allOf(withId(R.id.budgetName),childAtPosition(childAtPosition(withId(R.id.list),0),0))).perform(longClick());
+        onView(allOf(withId(android.R.id.title), withText("Edit"), isDisplayed())).perform(click());
+        onView(allOf(withId(R.id.action_edit), withContentDescription("Edit"), isDisplayed())).perform(click());
+        onView(allOf(withId(R.id.action_delete), withContentDescription("Delete"), isDisplayed())).perform(click());
+        onView(allOf(withId(android.R.id.button1), withText("Confirm"),
+                        withParent(allOf(withId(R.id.buttonPanel),
+                                withParent(withId(R.id.parentPanel)))),
+                        isDisplayed())).perform(click());
+        onView(withText("Budgets")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void cancelCreateBudget() {
+        String budgetName = "Test budget";
+        String budgetMax = "250";
+
+        onView(allOf(childAtPosition(withId(R.id.list), 0), isDisplayed())).perform(click());
+        onView(withText("Budgets")).check(matches(isDisplayed()));
+        onView(withId(R.id.action_add)).perform(click());
+        //check text
+        onView(withId(R.id.budgetName)).perform(replaceText(budgetName), closeSoftKeyboard());
+        //check value
+        onView(withId(R.id.value)).perform(replaceText(budgetMax), closeSoftKeyboard());
+        onView(withId(R.id.budgetName)).perform(replaceText(budgetName), closeSoftKeyboard());
+        onView(withId(R.id.value)).perform(replaceText(budgetMax), closeSoftKeyboard());
+        onView(withId(R.id.saveButton)).perform(click());
+        onView(allOf(withId(R.id.budgetName),childAtPosition(childAtPosition(withId(R.id.list),0),0))).check(matches(withText(budgetName)));
+    }
 
     //test 1
     //Click op de +
